@@ -32,7 +32,11 @@ function arrayContains(array, element) {
 }
 
 function arrayRemove(array, item) {
-    return array.splice(array.indexOf(item), 1);
+    var index = array.indexOf(item);
+
+    if(index < 0) return;
+
+    return array.splice(index, 1);
 }
 
 function arraysEqual(a, b) {
