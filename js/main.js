@@ -1,16 +1,23 @@
 var canvas = document.getElementById('canvas');
 var context = canvas.getContext('2d');
 
-var state = {
+var uiState = {
     renderables: [],
     buttons: [],
-    syllables: ["ba", "la", "ci", "gue", "ar", "ir", "sa", "pi", "to", "ga", "ta", "si"],
-    wordsSyllables: [["ba", "la"], ["sa", "ci"]],
-    selectedSyllablesButtons: []
+    selectedSyllablesButtons: [],
+    wordsTexts: {},
+    lastSyllablesChoicesButton: null
+};
+
+var gameState = {
+    topic: null,
+    syllables: [],
+    wordsSyllables: [],
+    completedWordsSyllables: []
 };
 
 var rightRectangle = new Rectangle({
-    pos: {x: 100, y: 40}
+    pos: {x: 200, y: 0}
 });
 var inputBar;
 
@@ -20,46 +27,121 @@ main();
 function main(){
     registerButtonsListeners();
 
-    buildInput();
-    buildSyllablesChoicesButtons();
+    buildLevel();
 
-    (function animloop(){
-        requestAnimFrame(animloop);
+    buildSyllablesChoicesButtons();
+    buildInput();
+    buildGui();
+
+    animloop();
+    function animloop(){
+        crossBrowserRequestAnimatonFrame(animloop);
         frameLoop();
-    })();
+    }
 }
 
 function frameLoop(){
     var hoveringSomething = false;
 
-    state.buttons.forEach(function(button) {
+    uiState.buttons.forEach(function(button) {
         hoveringSomething = hoveringSomething || button.hovering;
     });
 
     canvas.style.cursor = hoveringSomething ? 'pointer' : 'default';
 
+    clearCanvas();
     renderRenderables();
 }
 
+function clearCanvas() {
+    context.fillStyle = '#fcfcfc';
+    context.fillRect(0, 0, canvas.width, canvas.height);
+}
+
 function addRenderable(renderable) {
-    state.renderables.push(renderable);
+    uiState.renderables.push(renderable);
 }
 
 function removeRenderable(renderable) {
-    removeFromArray(state.renderables, renderable);
+    arrayRemove(uiState.renderables, renderable);
+}
+
+function removeRenderables(renderables) {
+    renderables.forEach(function (renderable) {
+        arrayRemove(uiState.renderables, renderable);
+    });
 }
 
 function renderRenderables() {
-    state.renderables.forEach(function(renderable) {
+    uiState.renderables.forEach(function(renderable) {
         renderable.render();
     });
 }
 
+function buildLevel() {
+    var topic = arrayPickRandom(topics);
+
+    var words = arrayPickRandom(topic.words, 10);
+
+    var wordsSyllables = words.map(function (word) {
+        return word.split('-');
+    });
+
+    var allSyllables = arrayFlatten(wordsSyllables);
+    var syllables = arrayShuffle(arrayDedupe(allSyllables));
+
+    console.log(wordsSyllables);
+
+    gameState.topic = topic;
+    gameState.wordsSyllables = wordsSyllables;
+    gameState.syllables = syllables;
+}
+
+function buildGui() {
+
+    addRenderable(new Text({
+        pos: {
+            x: 10,
+            y: 10
+        },
+        text: 'Tema: ' + gameState.topic.topic
+    }));
+
+    addRenderable(new Text({
+        pos: {
+            x: 10,
+            y: 60
+        },
+        text: 'Palavras:'
+    }));
+
+    var lastWordText;
+
+    gameState.wordsSyllables.forEach(function (wordsSyllable) {
+        var wordText = new Text({
+            pos: {
+                x: 10,
+                y: lastWordText ? lastWordText.endPos.y : 90
+            },
+            text: wordsSyllable.map(function () {return '□'}).join(' ')
+        });
+
+
+        addRenderable(wordText);
+        uiState.wordsTexts[wordsSyllable.join('')] = wordText;
+
+        lastWordText = wordText;
+    });
+
+}
+
 function buildInput() {
+
+    var posY = uiState.lastSyllablesChoicesButton.endPos.y + 20;
 
     inputBar = new Rectangle({
         relativeFrom: rightRectangle,
-        pos: {x: 10, y: 100},
+        pos: {x: 10, y: posY},
         width: 500,
         height: 40,
         bgColor: '#F1F1F1'
@@ -72,29 +154,37 @@ function buildInput() {
         pos: {x: 455, y: 5},
         width: 40,
         onClick: function () {
-            var lastSyllablesButtons = state.selectedSyllablesButtons[
-                state.selectedSyllablesButtons.length-1
-                ];
+            var lastSyllablesButtons
+                = uiState.selectedSyllablesButtons[uiState.selectedSyllablesButtons.length-1];
 
-            removeFromArray(state.selectedSyllablesButtons, lastSyllablesButtons);
             removeRenderable(lastSyllablesButtons);
+            arrayRemove(uiState.selectedSyllablesButtons, lastSyllablesButtons);
         }
     });
-
     addRenderable(backspaceButton);
-    state.buttons.push(backspaceButton);
+
+    uiState.buttons.push(backspaceButton);
 }
 
 function buildSyllablesChoicesButtons(){
 
-    var fromPosX = rightRectangle.pos.x;
-    var fromPosY = rightRectangle.pos.y;
+    var initialPos = rightRectangle.pos;
 
-    state.syllables.forEach(function (syllable, i) {
+    var lastButton = new Button({pos: {
+        x: initialPos.x,
+        y: initialPos.y-20
+    }});
+
+    gameState.syllables.forEach(function (syllable, i) {
+
+        var isLineBreak = (i%10 === 0);
+
+        var posX = ((isLineBreak) ? initialPos.x : lastButton.pos.x+lastButton.width)+10;
+        var posY = (isLineBreak) ? lastButton.endPos.y+10 : lastButton.pos.y;
 
         var pos = {
-            x: fromPosX+10,
-            y: fromPosY+10
+            x: posX,
+            y: posY
         };
 
         var button = new SyllableChoiceButton({
@@ -103,17 +193,18 @@ function buildSyllablesChoicesButtons(){
         });
 
         addRenderable(button);
-        state.buttons.push(button);
+        uiState.buttons.push(button);
 
-        // fromPosX = (i !== 0 && i%10 === 0) ? rightRectangle.pos.x : button.pos.x+button.width;
-        fromPosX = button.pos.x+button.width;
-        // fromPosY = rightRectangle.pos.x + Math.floor(i/10)*40;
-    })
+        lastButton = button;
+    });
+
+    uiState.lastSyllablesChoicesButton = lastButton;
 }
 
 function addSyllableToInput(syllable) {
 
-    var last = state.selectedSyllablesButtons[state.selectedSyllablesButtons.length-1];
+    var first = uiState.selectedSyllablesButtons[0];
+    var last = uiState.selectedSyllablesButtons[uiState.selectedSyllablesButtons.length-1];
 
     var pos = {
         x: (last) ? last.pos.x+last.width+5 : inputBar.pos.x+5,
@@ -122,30 +213,42 @@ function addSyllableToInput(syllable) {
 
     var button = new Button({
         text: syllable,
-        pos: pos,
-        onClick: function () {
-            addSyllableToInput()
-        }
+        pos: pos
     });
 
+    first = first ? first : button;
+
+    if(button.endPos.x-first.pos.x > inputBar.width-55) return;
+
+
     addRenderable(button);
-    state.selectedSyllablesButtons.push(button);
+    uiState.selectedSyllablesButtons.push(button);
 
     testWords();
 }
 
 function testWords() {
-    var selectedSyllables = state.selectedSyllablesButtons.map(function (selectedSyllableButton) {
+    var selectedSyllables = uiState.selectedSyllablesButtons.map(function (selectedSyllableButton) {
         return selectedSyllableButton.text;
     });
 
-    for (var i = 0; i < state.wordsSyllables.length; i++) {
-        var word = state.wordsSyllables[i];
+    for (var i = 0; i < gameState.wordsSyllables.length; i++) {
+        var wordSyllables = gameState.wordsSyllables[i];
 
-        if(arraysEqual(word, selectedSyllables)){
-            console.log('word formed');
+        if(arraysEqual(wordSyllables, selectedSyllables)
+            && !arrayContains(gameState.completedWordsSyllables, wordSyllables)){
 
-            return word;
+            console.log('Word Formed!', wordSyllables);
+
+            removeRenderables(uiState.selectedSyllablesButtons);
+            uiState.selectedSyllablesButtons = [];
+
+            var word = wordSyllables.join('');
+
+            gameState.completedWordsSyllables.push(wordSyllables);
+            uiState.wordsTexts[word].text = word;
+
+            return wordSyllables;
         }
     }
 
@@ -157,7 +260,7 @@ function registerButtonsListeners(){
     canvas.addEventListener('click', function(evt) {
         var mousePos = getMousePos(evt);
 
-        state.buttons.forEach(function(button){
+        uiState.buttons.forEach(function(button){
 
             var box = {
                 pos: button.pos,
@@ -175,7 +278,7 @@ function registerButtonsListeners(){
     canvas.addEventListener('mousemove', function(evt) {
         var mousePos = getMousePos(evt);
 
-        state.buttons.forEach(function(button){
+        uiState.buttons.forEach(function(button){
 
             var box = {
                 pos: button.pos,
@@ -183,7 +286,7 @@ function registerButtonsListeners(){
                 height: button.height
             };
 
-            button.hovering = isInside(mousePos, box);
+            button.setHovering(isInside(mousePos, box));
         });
 
     }, false);

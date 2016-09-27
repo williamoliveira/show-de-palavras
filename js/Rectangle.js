@@ -8,13 +8,10 @@ function Rectangle(attributes) {
     this.pos = attributes.pos || {x:0, y:0};
 
     this.pos = this._calculatePos();
+    this.endPos = this._calculateEndPos();
 }
 
 Rectangle.prototype = Object.create(Renderable.prototype);
-
-Rectangle.prototype.getPos = function () {
-    return this.pos;
-};
 
 Rectangle.prototype.render = function () {
     context.fillStyle = this.bgColor;
@@ -22,12 +19,17 @@ Rectangle.prototype.render = function () {
 };
 
 Rectangle.prototype._calculatePos = function () {
-    if(!this.relativeFrom){
-        return this.pos;
-    }
+    if(!this.relativeFrom) return this.pos;
 
     return {
         x: this.relativeFrom.pos.x+this.pos.x,
         y: this.relativeFrom.pos.y+this.pos.y
+    }
+};
+
+Rectangle.prototype._calculateEndPos = function () {
+    return {
+        x: this.pos.x+this.width,
+        y: this.pos.y+this.height
     }
 };

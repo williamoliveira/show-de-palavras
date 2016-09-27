@@ -2,7 +2,7 @@ function Button(attributes) {
     Rectangle.call(this, attributes);
 
     this.text = attributes.text || 'Text';
-    this.width = attributes.width || ((attributes.text.length*10)+10);
+    this.width = attributes.width || ((this.text.length*10)+10);
     this.textColor = attributes.textColor || '#000000';
     this.fontFamily = attributes.fontFamily || 'Arial';
     this.fontSize = attributes.fontSize || 14;
@@ -23,6 +23,10 @@ Button.prototype.render = function () {
     context.fillStyle = (this.hovering) ? this.hover.textColor || this.textColor : this.textColor;
     context.textBaseline = 'top';
     context.fillText(this.text, this.pos.x+5, this.pos.y+5);
+};
+
+Button.prototype.setHovering = function (hovering) {
+    this.hovering = hovering;
 };
 
 Button.prototype.onClick = function () {
