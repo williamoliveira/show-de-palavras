@@ -76,11 +76,3 @@ function arrayShuffle(array) {
 function arrayFlatten(arrays) {
     return [].concat.apply([], arrays);
 }
-
-function arrayDedupe(array) {
-    var seen = {};
-
-    return array.filter(function(item) {
-        return seen.hasOwnProperty(item) ? false : (seen[item] = true);
-    });
-}

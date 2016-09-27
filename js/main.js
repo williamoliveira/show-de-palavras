@@ -5,6 +5,7 @@ var uiState = {
     renderables: [],
     buttons: [],
     selectedSyllablesButtons: [],
+    syllablesChoicesButtons: {},
     wordsTexts: {},
     lastSyllablesChoicesButton: null
 };
@@ -72,6 +73,14 @@ function removeRenderables(renderables) {
     });
 }
 
+function addButton(button) {
+    uiState.buttons.push(button);
+}
+
+function removeButton(button) {
+    arrayRemove(uiState.buttons, button);
+}
+
 function renderRenderables() {
     uiState.renderables.forEach(function(renderable) {
         renderable.render();
@@ -87,8 +96,7 @@ function buildLevel() {
         return word.split('-');
     });
 
-    var allSyllables = arrayFlatten(wordsSyllables);
-    var syllables = arrayShuffle(arrayDedupe(allSyllables));
+    var syllables = arrayShuffle(arrayFlatten(wordsSyllables));
 
     console.log(wordsSyllables);
 
@@ -161,9 +169,9 @@ function buildInput() {
             arrayRemove(uiState.selectedSyllablesButtons, lastSyllablesButtons);
         }
     });
-    addRenderable(backspaceButton);
 
-    uiState.buttons.push(backspaceButton);
+    addRenderable(backspaceButton);
+    addButton(backspaceButton);
 }
 
 function buildSyllablesChoicesButtons(){
@@ -193,7 +201,9 @@ function buildSyllablesChoicesButtons(){
         });
 
         addRenderable(button);
-        uiState.buttons.push(button);
+        addButton(button);
+        uiState.syllablesChoicesButtons[syllable] = uiState.syllablesChoicesButtons[syllable] || [];
+        uiState.syllablesChoicesButtons[syllable].push(button);
 
         lastButton = button;
     });
@@ -247,6 +257,15 @@ function testWords() {
 
             gameState.completedWordsSyllables.push(wordSyllables);
             uiState.wordsTexts[word].text = word;
+
+            wordSyllables.forEach(function (syllable) {
+                var button = uiState.syllablesChoicesButtons[syllable].pop();
+
+                if(!button) return;
+
+                removeButton(button);
+                removeRenderable(button);
+            });
 
             return wordSyllables;
         }
