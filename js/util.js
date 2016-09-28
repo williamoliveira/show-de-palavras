@@ -11,6 +11,8 @@ window.crossBrowserRequestAnimatonFrame = (function(){
         };
 })();
 
+function noop() {}
+
 function getMousePos(event) {
     var rect = canvas.getBoundingClientRect();
 
@@ -60,9 +62,9 @@ function arrayPickRandom(array, quant) {
 }
 
 function arrayShuffle(array) {
-    var rand, index = -1,
-        length = array.length,
-        result = Array(length);
+    var rand, index = -1;
+    var length = array.length;
+    var result = Array(length);
 
     while (++index < length) {
         rand = Math.floor(Math.random() * (index + 1));
@@ -75,4 +77,31 @@ function arrayShuffle(array) {
 
 function arrayFlatten(arrays) {
     return [].concat.apply([], arrays);
+}
+
+function addMinutes(date, minutes) {
+    return new Date(date.getTime() + minutes*60000);
+}
+
+function getRemainingTime(endtime){
+    var t = Date.parse(endtime) - Date.parse(new Date());
+
+    var seconds = Math.floor( (t/1000) % 60 );
+    var minutes = Math.floor( (t/1000/60) % 60 );
+
+    return {
+        'total': t,
+        'minutes': minutes,
+        'seconds': seconds
+    };
+}
+
+function formatTime(time) {
+    return pad(time.minutes, 2) + ':' +  pad(time.seconds, 2);
+}
+
+function pad (str, max) {
+    str = str.toString();
+
+    return str.length < max ? pad("0" + str, max) : str;
 }

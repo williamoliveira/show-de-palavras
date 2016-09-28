@@ -6,8 +6,9 @@ function Button(attributes) {
     this.textColor = attributes.textColor || '#000000';
     this.fontFamily = attributes.fontFamily || 'Arial';
     this.fontSize = attributes.fontSize || 14;
-    this.onClick = attributes.onClick || this.onClick;
+    this.onClick = (typeof attributes.onClick === 'function') ? attributes.onClick.bind(this) : this.onClick;
     this.hovering = false;
+    this.disabled  = false;
 
     this.hover = attributes.hover || {};
 
@@ -17,6 +18,8 @@ function Button(attributes) {
 Button.prototype = Object.create(Rectangle.prototype);
 
 Button.prototype.render = function () {
+    if(this.disabled) return;
+
     context.fillStyle = (this.hovering) ? this.hover.bgColor || this.bgColor : this.bgColor;
     context.fillRect(this.pos.x, this.pos.y, this.width, this.height);
     context.font =  this.fontSize + 'pt ' +  this.fontFamily;

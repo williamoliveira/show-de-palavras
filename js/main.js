@@ -1,34 +1,46 @@
 var canvas = document.getElementById('canvas');
 var context = canvas.getContext('2d');
 
+var levels = [
+    {
+        topic: topics.cores,
+        time: 1
+    },
+    {
+        topic: topics.frutas,
+        time: 2.5
+    }
+];
+
 var uiState = {
     renderables: [],
     buttons: [],
     selectedSyllablesButtons: [],
-    syllablesChoicesButtons: {},
-    wordsTexts: {},
-    lastSyllablesChoicesButton: null
+    syllablesChoicesButtonsMap: {},
+    wordsTextsMap: {},
+    lastSyllablesChoicesButton: null,
+    rightRectangle: new Rectangle({pos: {x: 200, y: 0}}),
+    remainingTimeText: null,
+    inputBar: null,
+    scoreText: null
 };
 
 var gameState = {
-    topic: null,
+    score: 0,
+    timer: 0,
     syllables: [],
     wordsSyllables: [],
-    completedWordsSyllables: []
+    completedWordsSyllables: [],
+    levels: levels,
+    currentLevel: levels[0]
 };
-
-var rightRectangle = new Rectangle({
-    pos: {x: 200, y: 0}
-});
-var inputBar;
-
 
 main();
 
 function main(){
     registerButtonsListeners();
 
-    buildLevel();
+    buildLevel(gameState.currentLevel);
 
     buildSyllablesChoicesButtons();
     buildInput();
@@ -87,8 +99,32 @@ function renderRenderables() {
     });
 }
 
-function buildLevel() {
-    var topic = arrayPickRandom(topics);
+function startTimer(time, cbTimeout, cbChanged) {
+
+    var now = new Date();
+    var endsAt = addMinutes(now, time);
+
+    gameState.timer = {
+        startedAt: now,
+        endsAt: endsAt,
+        remainingTime: getRemainingTime(endsAt)
+    };
+
+    var unsub = setInterval(function () {
+        var remainingTime = getRemainingTime(gameState.timer.endsAt);
+        gameState.timer.remainingTime = remainingTime;
+
+        (cbChanged || noop)(remainingTime);
+
+        if(remainingTime.total <=0){
+            clearInterval(unsub);
+            (cbTimeout || noop)();
+        }
+    }, 100);
+}
+
+function buildLevel(level) {
+    var topic = level.topic;
 
     var words = arrayPickRandom(topic.words, 10);
 
@@ -98,11 +134,18 @@ function buildLevel() {
 
     var syllables = arrayShuffle(arrayFlatten(wordsSyllables));
 
-    console.log(wordsSyllables);
-
-    gameState.topic = topic;
     gameState.wordsSyllables = wordsSyllables;
     gameState.syllables = syllables;
+
+    startTimer(
+        level.time,
+        function () {
+            console.log('Timeout');
+        },
+        function (remainingTime) {
+            uiState.remainingTimeText.text = 'Tempo restate: ' + formatTime(remainingTime);
+        }
+    );
 }
 
 function buildGui() {
@@ -112,7 +155,7 @@ function buildGui() {
             x: 10,
             y: 10
         },
-        text: 'Tema: ' + gameState.topic.topic
+        text: 'Tema: ' + gameState.currentLevel.topic.name
     }));
 
     addRenderable(new Text({
@@ -136,37 +179,61 @@ function buildGui() {
 
 
         addRenderable(wordText);
-        uiState.wordsTexts[wordsSyllable.join('')] = wordText;
+        uiState.wordsTextsMap[wordsSyllable.join('')] = wordText;
 
         lastWordText = wordText;
     });
 
+
+    uiState.remainingTimeText = new Text({
+        pos: {
+            x: 10,
+            y: canvas.height - 40
+        },
+        text: ' '
+    });
+    addRenderable(uiState.remainingTimeText);
+
+    uiState.scoreText = new Text({
+        pos: {
+            x: 250,
+            y: canvas.height - 40
+        },
+        text: 'Pontuação: 0'
+    });
+    addRenderable(uiState.scoreText);
 }
 
 function buildInput() {
 
     var posY = uiState.lastSyllablesChoicesButton.endPos.y + 20;
 
-    inputBar = new Rectangle({
-        relativeFrom: rightRectangle,
+    uiState.inputBar = new Rectangle({
+        relativeFrom: uiState.rightRectangle,
         pos: {x: 10, y: posY},
         width: 500,
         height: 40,
         bgColor: '#F1F1F1'
     });
-    addRenderable(inputBar);
+    addRenderable(uiState.inputBar);
 
     var backspaceButton = new Button({
-        relativeFrom: inputBar,
+        relativeFrom: uiState.inputBar,
         text: '⌫',
         pos: {x: 455, y: 5},
         width: 40,
         onClick: function () {
-            var lastSyllablesButtons
-                = uiState.selectedSyllablesButtons[uiState.selectedSyllablesButtons.length-1];
+            var lastSyllablesButton = uiState.selectedSyllablesButtons.pop();
 
-            removeRenderable(lastSyllablesButtons);
-            arrayRemove(uiState.selectedSyllablesButtons, lastSyllablesButtons);
+            if(!lastSyllablesButton) return;
+
+            removeRenderable(lastSyllablesButton);
+
+            var choiceButton = uiState.syllablesChoicesButtonsMap[lastSyllablesButton.text].filter(function (btn) {
+                return btn.disabled === true;
+            })[0];
+
+            choiceButton.disabled = false;
         }
     });
 
@@ -176,7 +243,7 @@ function buildInput() {
 
 function buildSyllablesChoicesButtons(){
 
-    var initialPos = rightRectangle.pos;
+    var initialPos = uiState.rightRectangle.pos;
 
     var lastButton = new Button({pos: {
         x: initialPos.x,
@@ -197,13 +264,16 @@ function buildSyllablesChoicesButtons(){
 
         var button = new SyllableChoiceButton({
             pos: pos,
-            text: syllable
+            text: syllable,
+            onClick: function () {
+                if(addSyllableToInput(this.text)) this.disabled = true;
+            }
         });
 
         addRenderable(button);
         addButton(button);
-        uiState.syllablesChoicesButtons[syllable] = uiState.syllablesChoicesButtons[syllable] || [];
-        uiState.syllablesChoicesButtons[syllable].push(button);
+        uiState.syllablesChoicesButtonsMap[syllable] = uiState.syllablesChoicesButtonsMap[syllable] || [];
+        uiState.syllablesChoicesButtonsMap[syllable].push(button);
 
         lastButton = button;
     });
@@ -217,8 +287,8 @@ function addSyllableToInput(syllable) {
     var last = uiState.selectedSyllablesButtons[uiState.selectedSyllablesButtons.length-1];
 
     var pos = {
-        x: (last) ? last.pos.x+last.width+5 : inputBar.pos.x+5,
-        y: inputBar.pos.y+5
+        x: (last) ? last.pos.x+last.width+5 : uiState.inputBar.pos.x+5,
+        y: uiState.inputBar.pos.y+5
     };
 
     var button = new Button({
@@ -228,13 +298,15 @@ function addSyllableToInput(syllable) {
 
     first = first ? first : button;
 
-    if(button.endPos.x-first.pos.x > inputBar.width-55) return;
+    if(button.endPos.x-first.pos.x > uiState.inputBar.width-55) return false;
 
 
     addRenderable(button);
     uiState.selectedSyllablesButtons.push(button);
 
     testWords();
+
+    return true;
 }
 
 function testWords() {
@@ -256,16 +328,19 @@ function testWords() {
             var word = wordSyllables.join('');
 
             gameState.completedWordsSyllables.push(wordSyllables);
-            uiState.wordsTexts[word].text = word;
+            uiState.wordsTextsMap[word].text = word;
 
             wordSyllables.forEach(function (syllable) {
-                var button = uiState.syllablesChoicesButtons[syllable].pop();
+                var button = uiState.syllablesChoicesButtonsMap[syllable].pop();
 
                 if(!button) return;
 
                 removeButton(button);
                 removeRenderable(button);
             });
+
+            gameState.score += (gameState.timer.remainingTime.total/1000);
+            uiState.scoreText.text = 'Pontuação: ' + gameState.score;
 
             return wordSyllables;
         }
@@ -280,6 +355,7 @@ function registerButtonsListeners(){
         var mousePos = getMousePos(evt);
 
         uiState.buttons.forEach(function(button){
+            if(button.disabled) return;
 
             var box = {
                 pos: button.pos,
@@ -298,6 +374,7 @@ function registerButtonsListeners(){
         var mousePos = getMousePos(evt);
 
         uiState.buttons.forEach(function(button){
+            if(button.disabled) return button.setHovering(false);
 
             var box = {
                 pos: button.pos,

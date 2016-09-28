@@ -172,37 +172,37 @@ var planta = [
     "su-cu-len-ta"
 ];
 
-var topics = [
-    {
-        topic: 'Plantas',
+var topics = {
+    plantas: {
+        name: 'Plantas',
         words: planta
     },
-    {
-        topic: 'Paises',
+    paises: {
+        name: 'Paises',
         words: paises
     },
-    {
-        topic: 'Profissões',
+    profissoes: {
+        name: 'Profissões',
         words: profissao
     },
-    {
-        topic: 'Cores',
+    cores: {
+        name: 'Cores',
         words: cor
     },
-    {
-        topic: 'Animais',
+    animais: {
+        name: 'Animais',
         words: animal
     },
-    {
-        topic: 'Frutas',
+    frutas: {
+        name: 'Frutas',
         words: fruta
     },
-    {
-        topic: 'Objetos',
+    objetos: {
+        name: 'Objetos',
         words: objeto
     },
-    {
-        topic: 'Comidas',
+    comidas: {
+        name: 'Comidas',
         words: comida
     }
-];
+};
