@@ -4,30 +4,70 @@ var context = canvas.getContext('2d');
 var levels = [
     {
         topic: topics.cores,
-        time: 1
+        time: 2.25
     },
     {
         topic: topics.frutas,
-        time: 2.5
+        time: 2
+    },
+    {
+        topic: topics.animais,
+        time: 1.75
+    },
+    {
+        topic: topics.comidas,
+        time: 1.50
+    },
+    {
+        topic: topics.paises,
+        time: 1.25
+    },
+    {
+        topic: topics.profissoes,
+        time: 1
+    },
+    {
+        topic: topics.objetos,
+        time: 0.75
+    },
+    {
+        topic: topics.plantas,
+        time: 0.5
     }
 ];
 
 var uiState = {
-    renderables: [],
+    rightRectangle: new Rectangle({pos: {x: 200, y: 0}}),
+    lastSyllablesChoicesButton: null,
     buttons: [],
+
+    //to render
     selectedSyllablesButtons: [],
     syllablesChoicesButtonsMap: {},
     wordsTextsMap: {},
-    lastSyllablesChoicesButton: null,
-    rightRectangle: new Rectangle({pos: {x: 200, y: 0}}),
     remainingTimeText: null,
     inputBar: null,
-    scoreText: null
+    backspaceButton: null,
+    scoreText: null,
+    topicText: null,
+    wordTextTitle: null,
+    nextLevelPage: {
+        background: null,
+        button: null,
+        text: null
+    },
+    endGamePage: {
+        background: null,
+        button: null,
+        yourScoreText: null,
+        highscoreText: null
+    }
 };
 
 var gameState = {
+    gameEnded: false,
     score: 0,
-    timer: 0,
+    timer: {},
     syllables: [],
     wordsSyllables: [],
     completedWordsSyllables: [],
@@ -39,13 +79,7 @@ main();
 
 function main(){
     registerButtonsListeners();
-
     buildLevel(gameState.currentLevel);
-
-    buildSyllablesChoicesButtons();
-    buildInput();
-    buildGui();
-
     animloop();
     function animloop(){
         crossBrowserRequestAnimatonFrame(animloop);
@@ -53,17 +87,21 @@ function main(){
     }
 }
 
+// executado 60 vezes por segundo, não fazer operações pesadas
 function frameLoop(){
-    var hoveringSomething = false;
-
-    uiState.buttons.forEach(function(button) {
-        hoveringSomething = hoveringSomething || button.hovering;
-    });
-
-    canvas.style.cursor = hoveringSomething ? 'pointer' : 'default';
-
     clearCanvas();
-    renderRenderables();
+
+    if(gameState.gameEnded){
+        renderEndGamePageElements();
+        return;
+    }
+
+    if(gameState.timer.remainingTime.total <= 0){
+        renderNextLevelPageElements();
+        return;
+    }
+
+    renderGamePageElements();
 }
 
 function clearCanvas() {
@@ -71,17 +109,38 @@ function clearCanvas() {
     context.fillRect(0, 0, canvas.width, canvas.height);
 }
 
-function addRenderable(renderable) {
-    uiState.renderables.push(renderable);
+function renderNextLevelPageElements() {
+    uiState.nextLevelPage.background.doRender();
+    uiState.nextLevelPage.button.doRender();
 }
 
-function removeRenderable(renderable) {
-    arrayRemove(uiState.renderables, renderable);
+function renderEndGamePageElements() {
+    uiState.endGamePage.background.doRender();
+    uiState.endGamePage.yourScoreText.doRender();
+    uiState.endGamePage.highscoreText.doRender();
+    uiState.endGamePage.button.doRender();
 }
 
-function removeRenderables(renderables) {
-    renderables.forEach(function (renderable) {
-        arrayRemove(uiState.renderables, renderable);
+function renderGamePageElements() {
+    uiState.remainingTimeText.doRender();
+    uiState.inputBar.doRender();
+    uiState.backspaceButton.doRender();
+    uiState.scoreText.doRender();
+    uiState.topicText.doRender();
+    uiState.wordTextTitle.doRender();
+
+    uiState.selectedSyllablesButtons.forEach(function (selectedSyllablesButton) {
+        selectedSyllablesButton.doRender();
+    });
+
+    Object.keys(uiState.syllablesChoicesButtonsMap).forEach(function (key) {
+        uiState.syllablesChoicesButtonsMap[key].forEach(function (syllablesChoicesButton) {
+            syllablesChoicesButton.doRender();
+        });
+    });
+
+    Object.keys(uiState.wordsTextsMap).forEach(function (key) {
+        uiState.wordsTextsMap[key].doRender();
     });
 }
 
@@ -93,24 +152,123 @@ function removeButton(button) {
     arrayRemove(uiState.buttons, button);
 }
 
-function renderRenderables() {
-    uiState.renderables.forEach(function(renderable) {
-        renderable.render();
+function buildEndGamePage() {
+    uiState.endGamePage.background = new Rectangle({
+        pos: {
+            x: 0,
+            y: 0
+        },
+        width: canvas.width,
+        height: canvas.height,
+        bgColor: '#f1f1f1'
     });
+
+    uiState.endGamePage.yourScoreText = new Text({
+        pos: {
+            x: 325,
+            y: 300
+        },
+        text: 'Sua pontuação: ' + gameState.score
+    });
+
+    uiState.endGamePage.highscoreText = new Text({
+        pos: {
+            x: 320  ,
+            y: 340
+        },
+        text: 'Maior pontuação: ' + getHighscore()
+    });
+
+
+    uiState.endGamePage.button = new Button({
+        pos: {
+            x: 325,
+            y: 400
+        },
+        text: 'Jogar novamente',
+        onClick: function () {
+            gameState.currentLevel = gameState.levels[0];
+
+            uiState.score = 0;
+            uiState.selectedSyllablesButtons = [];
+            uiState.buttons = [];
+            uiState.lastSyllablesChoicesButton = null;
+            uiState.syllablesChoicesButtonsMap = {};
+            uiState.wordsTextsMap = {};
+
+            buildLevel(gameState.currentLevel);
+            gameState.gameEnded = false;
+        }
+    });
+
+    addButton(uiState.endGamePage.button);
+}
+
+function buildGoToNextLevelPage() {
+    uiState.nextLevelPage.background = new Rectangle({
+        pos: {
+            x: 0,
+            y: 0
+        },
+        width: canvas.width,
+        height: canvas.height,
+        bgColor: '#f1f1f1'
+    });
+
+    uiState.nextLevelPage.text = new Text({
+        pos: {
+            x: 325,
+            y: 400
+        }
+    });
+
+    uiState.nextLevelPage.button = new Button({
+        pos: {
+            x: 325,
+            y: 400
+        },
+        text: 'Pŕoximo nível >',
+        onClick: function () {
+            var currentLevelIndex = gameState.levels.indexOf(gameState.currentLevel);
+
+            if(currentLevelIndex >= gameState.levels.length-1){
+                buildEndGamePage();
+                gameState.gameEnded = true;
+                return;
+            }
+
+            gameState.currentLevel = gameState.levels[currentLevelIndex+1];
+
+            uiState.selectedSyllablesButtons = [];
+            uiState.buttons = [];
+            uiState.lastSyllablesChoicesButton = null;
+            uiState.syllablesChoicesButtonsMap = {};
+            uiState.wordsTextsMap = {};
+
+            buildLevel(gameState.currentLevel);
+        }
+    });
+
+    addButton(uiState.nextLevelPage.button);
 }
 
 function startTimer(time, cbTimeout, cbChanged) {
 
+    var unsub;
     var now = new Date();
     var endsAt = addMinutes(now, time);
 
     gameState.timer = {
         startedAt: now,
         endsAt: endsAt,
-        remainingTime: getRemainingTime(endsAt)
+        remainingTime: getRemainingTime(endsAt),
+        stop: function () {
+            clearInterval(unsub);
+            gameState.timer.remainingTime.total = 0;
+        }
     };
 
-    var unsub = setInterval(function () {
+    unsub = setInterval(function () {
         var remainingTime = getRemainingTime(gameState.timer.endsAt);
         gameState.timer.remainingTime = remainingTime;
 
@@ -134,9 +292,11 @@ function buildLevel(level) {
 
     var syllables = arrayShuffle(arrayFlatten(wordsSyllables));
 
+
     gameState.wordsSyllables = wordsSyllables;
     gameState.syllables = syllables;
 
+    console.log(gameState.wordsSyllables);
     startTimer(
         level.time,
         function () {
@@ -146,25 +306,30 @@ function buildLevel(level) {
             uiState.remainingTimeText.text = 'Tempo restate: ' + formatTime(remainingTime);
         }
     );
+
+    buildSyllablesChoicesButtons();
+    buildInput();
+    buildGui();
+    buildGoToNextLevelPage();
 }
 
 function buildGui() {
 
-    addRenderable(new Text({
+    uiState.topicText = new Text({
         pos: {
             x: 10,
             y: 10
         },
         text: 'Tema: ' + gameState.currentLevel.topic.name
-    }));
+    });
 
-    addRenderable(new Text({
+    uiState.wordTextTitle = new Text({
         pos: {
             x: 10,
             y: 60
         },
         text: 'Palavras:'
-    }));
+    });
 
     var lastWordText;
 
@@ -177,8 +342,6 @@ function buildGui() {
             text: wordsSyllable.map(function () {return '□'}).join(' ')
         });
 
-
-        addRenderable(wordText);
         uiState.wordsTextsMap[wordsSyllable.join('')] = wordText;
 
         lastWordText = wordText;
@@ -192,16 +355,14 @@ function buildGui() {
         },
         text: ' '
     });
-    addRenderable(uiState.remainingTimeText);
 
     uiState.scoreText = new Text({
         pos: {
             x: 250,
             y: canvas.height - 40
         },
-        text: 'Pontuação: 0'
+        text: 'Pontuação: ' + gameState.score
     });
-    addRenderable(uiState.scoreText);
 }
 
 function buildInput() {
@@ -215,9 +376,8 @@ function buildInput() {
         height: 40,
         bgColor: '#F1F1F1'
     });
-    addRenderable(uiState.inputBar);
 
-    var backspaceButton = new Button({
+    uiState.backspaceButton =  new Button({
         relativeFrom: uiState.inputBar,
         text: '⌫',
         pos: {x: 455, y: 5},
@@ -227,8 +387,6 @@ function buildInput() {
 
             if(!lastSyllablesButton) return;
 
-            removeRenderable(lastSyllablesButton);
-
             var choiceButton = uiState.syllablesChoicesButtonsMap[lastSyllablesButton.text].filter(function (btn) {
                 return btn.disabled === true;
             })[0];
@@ -237,8 +395,7 @@ function buildInput() {
         }
     });
 
-    addRenderable(backspaceButton);
-    addButton(backspaceButton);
+    addButton(uiState.backspaceButton);
 }
 
 function buildSyllablesChoicesButtons(){
@@ -270,7 +427,6 @@ function buildSyllablesChoicesButtons(){
             }
         });
 
-        addRenderable(button);
         addButton(button);
         uiState.syllablesChoicesButtonsMap[syllable] = uiState.syllablesChoicesButtonsMap[syllable] || [];
         uiState.syllablesChoicesButtonsMap[syllable].push(button);
@@ -300,8 +456,6 @@ function addSyllableToInput(syllable) {
 
     if(button.endPos.x-first.pos.x > uiState.inputBar.width-55) return false;
 
-
-    addRenderable(button);
     uiState.selectedSyllablesButtons.push(button);
 
     testWords();
@@ -320,33 +474,63 @@ function testWords() {
         if(arraysEqual(wordSyllables, selectedSyllables)
             && !arrayContains(gameState.completedWordsSyllables, wordSyllables)){
 
-            console.log('Word Formed!', wordSyllables);
-
-            removeRenderables(uiState.selectedSyllablesButtons);
-            uiState.selectedSyllablesButtons = [];
-
-            var word = wordSyllables.join('');
-
-            gameState.completedWordsSyllables.push(wordSyllables);
-            uiState.wordsTextsMap[word].text = word;
-
-            wordSyllables.forEach(function (syllable) {
-                var button = uiState.syllablesChoicesButtonsMap[syllable].pop();
-
-                if(!button) return;
-
-                removeButton(button);
-                removeRenderable(button);
-            });
-
-            gameState.score += (gameState.timer.remainingTime.total/1000);
-            uiState.scoreText.text = 'Pontuação: ' + gameState.score;
-
-            return wordSyllables;
+            return handleWordFormed(wordSyllables);
         }
     }
 
     return false;
+}
+
+function handleWordFormed(wordSyllables) {
+    console.log('Word Formed!', wordSyllables);
+
+    uiState.selectedSyllablesButtons = [];
+
+    var word = wordSyllables.join('');
+
+    gameState.completedWordsSyllables.push(wordSyllables);
+    uiState.wordsTextsMap[word].text = word;
+
+    wordSyllables.forEach(function (syllable) {
+        uiState.syllablesChoicesButtonsMap[syllable]
+            .filter(function (button) {
+                return button.disabled;
+            })
+            .forEach(function (button) {
+                arrayRemove(uiState.syllablesChoicesButtonsMap[syllable], button);
+                removeButton(button);
+            });
+    });
+
+    var thisScore = Math.floor(gameState.timer.remainingTime.total/1000);
+
+    gameState.score += ((thisScore >= 0) ? thisScore : 0);
+    uiState.scoreText.text = 'Pontuação: ' + gameState.score;
+
+    if(gameState.completedWordsSyllables.length === gameState.wordsSyllables.length){
+        handleGameEnded();
+    }
+
+    return wordSyllables;
+}
+
+function handleGameEnded() {
+    (gameState.timer.stop || noop)();
+
+    if(getHighscore() < gameState.score){
+        setHighscore(gameState.score);
+    }
+
+    buildEndGamePage();
+    gameState.gameEnded = true;
+}
+
+function setHighscore(score) {
+    window.localStorage.setItem('highscore', score);
+}
+
+function getHighscore() {
+    return window.localStorage.getItem('highscore');
 }
 
 function registerButtonsListeners(){
@@ -357,13 +541,7 @@ function registerButtonsListeners(){
         uiState.buttons.forEach(function(button){
             if(button.disabled) return;
 
-            var box = {
-                pos: button.pos,
-                width: button.width,
-                height: button.height
-            };
-
-            if(isInside(mousePos, box) && typeof button.onClick === 'function'){
+            if(isInside(mousePos, button) && (typeof button.onClick === 'function')){
                 button.onClick();
             }
         });
@@ -373,17 +551,17 @@ function registerButtonsListeners(){
     canvas.addEventListener('mousemove', function(evt) {
         var mousePos = getMousePos(evt);
 
+        var hoveringSomething = false;
+
         uiState.buttons.forEach(function(button){
-            if(button.disabled) return button.setHovering(false);
+            if(button.disabled) return;
 
-            var box = {
-                pos: button.pos,
-                width: button.width,
-                height: button.height
-            };
+            button.setHovering(isInside(mousePos, button));
 
-            button.setHovering(isInside(mousePos, box));
+            hoveringSomething = hoveringSomething || button.hovering;
         });
+
+        canvas.style.cursor = hoveringSomething ? 'pointer' : 'default';
 
     }, false);
 }

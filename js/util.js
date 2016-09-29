@@ -84,7 +84,7 @@ function addMinutes(date, minutes) {
 }
 
 function getRemainingTime(endtime){
-    var t = Date.parse(endtime) - Date.parse(new Date());
+    var t = endtime - new Date();
 
     var seconds = Math.floor( (t/1000) % 60 );
     var minutes = Math.floor( (t/1000/60) % 60 );
@@ -100,7 +100,7 @@ function formatTime(time) {
     return pad(time.minutes, 2) + ':' +  pad(time.seconds, 2);
 }
 
-function pad (str, max) {
+function pad(str, max) {
     str = str.toString();
 
     return str.length < max ? pad("0" + str, max) : str;
