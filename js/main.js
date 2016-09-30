@@ -470,7 +470,7 @@ function handleWordFormed(wordSyllables) {
     gameState.score += ((thisScore >= 0) ? thisScore : 0);
     uiState.scoreText.text = 'Pontuação: ' + gameState.score;
 
-    if(gameState.levels.indexOf(gameState.currentLevel) == gameState.levels.length-1){
+    if(gameState.levels.indexOf(gameState.currentLevel) === gameState.levels.length-1){
         handleGameEnded();
     }
     else if(gameState.completedWordsSyllables.length === gameState.wordsSyllables.length){
@@ -483,6 +483,7 @@ function handleWordFormed(wordSyllables) {
 function handleLevelEnded(){
     (gameState.timer.stop || noop)();
     gameState.timer.remainingTime.total = 0;
+    gameState.completedWordsSyllables = [];
     buildGoToNextLevelPage();
 }
 
