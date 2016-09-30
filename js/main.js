@@ -36,50 +36,15 @@ var levels = [
     }
 ];
 
-var uiState = {
-    rightRectangle: new Rectangle({pos: {x: 200, y: 0}}),
-    lastSyllablesChoicesButton: null,
-    buttons: [],
-
-    //to render
-    selectedSyllablesButtons: [],
-    syllablesChoicesButtonsMap: {},
-    wordsTextsMap: {},
-    remainingTimeText: null,
-    inputBar: null,
-    backspaceButton: null,
-    scoreText: null,
-    topicText: null,
-    wordTextTitle: null,
-    nextLevelPage: {
-        background: null,
-        button: null,
-        text: null
-    },
-    endGamePage: {
-        background: null,
-        button: null,
-        yourScoreText: null,
-        highscoreText: null
-    }
-};
-
-var gameState = {
-    gameEnded: false,
-    score: 0,
-    timer: {},
-    syllables: [],
-    wordsSyllables: [],
-    completedWordsSyllables: [],
-    levels: levels,
-    currentLevel: levels[0]
-};
+var uiState = createInitialUiState();
+var gameState = createInitialGameState();
 
 main();
 
 function main(){
     registerButtonsListeners();
     buildLevel(gameState.currentLevel);
+
     animloop();
     function animloop(){
         crossBrowserRequestAnimatonFrame(animloop);
@@ -153,6 +118,8 @@ function removeButton(button) {
 }
 
 function buildEndGamePage() {
+    uiState = createInitialUiState();
+
     uiState.endGamePage.background = new Rectangle({
         pos: {
             x: 0,
@@ -205,6 +172,8 @@ function buildEndGamePage() {
 }
 
 function buildGoToNextLevelPage() {
+    uiState = createInitialUiState();
+
     uiState.nextLevelPage.background = new Rectangle({
         pos: {
             x: 0,
@@ -230,12 +199,6 @@ function buildGoToNextLevelPage() {
         text: 'Pŕoximo nível >',
         onClick: function () {
             var currentLevelIndex = gameState.levels.indexOf(gameState.currentLevel);
-
-            if(currentLevelIndex >= gameState.levels.length-1){
-                buildEndGamePage();
-                gameState.gameEnded = true;
-                return;
-            }
 
             gameState.currentLevel = gameState.levels[currentLevelIndex+1];
 
@@ -292,25 +255,25 @@ function buildLevel(level) {
 
     var syllables = arrayShuffle(arrayFlatten(wordsSyllables));
 
-
     gameState.wordsSyllables = wordsSyllables;
     gameState.syllables = syllables;
 
     console.log(gameState.wordsSyllables);
+
+    buildSyllablesChoicesButtons();
+    buildInput();
+    buildGui();
+
     startTimer(
         level.time,
         function () {
+            handleLevelEnded();
             console.log('Timeout');
         },
         function (remainingTime) {
             uiState.remainingTimeText.text = 'Tempo restate: ' + formatTime(remainingTime);
         }
     );
-
-    buildSyllablesChoicesButtons();
-    buildInput();
-    buildGui();
-    buildGoToNextLevelPage();
 }
 
 function buildGui() {
@@ -507,11 +470,20 @@ function handleWordFormed(wordSyllables) {
     gameState.score += ((thisScore >= 0) ? thisScore : 0);
     uiState.scoreText.text = 'Pontuação: ' + gameState.score;
 
-    if(gameState.completedWordsSyllables.length === gameState.wordsSyllables.length){
+    if(gameState.levels.indexOf(gameState.currentLevel) == gameState.levels.length-1){
         handleGameEnded();
+    }
+    else if(gameState.completedWordsSyllables.length === gameState.wordsSyllables.length){
+        handleLevelEnded();
     }
 
     return wordSyllables;
+}
+
+function handleLevelEnded(){
+    (gameState.timer.stop || noop)();
+    gameState.timer.remainingTime.total = 0;
+    buildGoToNextLevelPage();
 }
 
 function handleGameEnded() {
@@ -564,4 +536,47 @@ function registerButtonsListeners(){
         canvas.style.cursor = hoveringSomething ? 'pointer' : 'default';
 
     }, false);
+}
+
+function createInitialUiState() {
+    return {
+        rightRectangle: new Rectangle({pos: {x: 200, y: 0}}),
+        lastSyllablesChoicesButton: null,
+        buttons: [],
+
+        //to render
+        selectedSyllablesButtons: [],
+        syllablesChoicesButtonsMap: {},
+        wordsTextsMap: {},
+        remainingTimeText: null,
+        inputBar: null,
+        backspaceButton: null,
+        scoreText: null,
+        topicText: null,
+        wordTextTitle: null,
+        nextLevelPage: {
+            background: null,
+            button: null,
+            text: null
+        },
+        endGamePage: {
+            background: null,
+            button: null,
+            yourScoreText: null,
+            highscoreText: null
+        }
+    };
+}
+
+function createInitialGameState() {
+    return {
+        gameEnded: false,
+        score: 0,
+        timer: {},
+        syllables: [],
+        wordsSyllables: [],
+        completedWordsSyllables: [],
+        levels: levels,
+        currentLevel: levels[0]
+    };
 }
