@@ -1,38 +1,41 @@
 var canvas = document.getElementById('canvas');
 var context = canvas.getContext('2d');
 
+var START_PAGE = 'START_PAGE';
+var GO_TO_NEXT_LEVEL_PAGE = 'GO_TO_NEXT_LEVEL_PAGE';
+var GAME_PAGE = 'GAME_PAGE';
+var END_GAME_PAGE = 'END_GAME_PAGE';
+
 var levels = [
     {
         topic: topics.cores,
-        time: 2.25
+        time: 5,
+        wordsNumber: 15,
+        scorePerWord: 50
     },
     {
         topic: topics.frutas,
-        time: 2
+        time: 4,
+        wordsNumber: 12,
+        scorePerWord: 55
     },
     {
         topic: topics.animais,
-        time: 1.75
+        time: 3,
+        wordsNumber: 10,
+        scorePerWord: 60
     },
     {
         topic: topics.comidas,
-        time: 1.50
+        time: 2,
+        wordsNumber: 8,
+        scorePerWord: 65
     },
     {
         topic: topics.paises,
-        time: 1.25
-    },
-    {
-        topic: topics.profissoes,
-        time: 1
-    },
-    {
-        topic: topics.objetos,
-        time: 0.75
-    },
-    {
-        topic: topics.plantas,
-        time: 0.5
+        time: 1,
+        wordsNumber: 6,
+        scorePerWord: 70
     }
 ];
 
@@ -43,30 +46,27 @@ main();
 
 function main(){
     registerButtonsListeners();
-    buildLevel(gameState.currentLevel);
+
+    goToNextLevel();
 
     animloop();
-    function animloop(){
-        crossBrowserRequestAnimatonFrame(animloop);
-        frameLoop();
-    }
 }
 
-// executado 60 vezes por segundo, não fazer operações pesadas
+function animloop(){
+    crossBrowserRequestAnimatonFrame(animloop);
+    frameLoop();
+}
+
+// executado 60 vezes por segundo
 function frameLoop(){
     clearCanvas();
 
-    if(gameState.gameEnded){
-        renderEndGamePageElements();
-        return;
+    switch (gameState.currentPage){
+        case START_PAGE: return renderStartPageElements();
+        case END_GAME_PAGE: return renderEndGamePageElements();
+        case GO_TO_NEXT_LEVEL_PAGE: return renderNextLevelPageElements();
+        default: renderGamePageElements();
     }
-
-    if(gameState.timer.remainingTime.total <= 0){
-        renderNextLevelPageElements();
-        return;
-    }
-
-    renderGamePageElements();
 }
 
 function clearCanvas() {
@@ -74,9 +74,16 @@ function clearCanvas() {
     context.fillRect(0, 0, canvas.width, canvas.height);
 }
 
+function renderStartPageElements() {
+    uiState.startPage.background.doRender();
+    uiState.startPage.button.doRender();
+    uiState.startPage.text.doRender();
+}
+
 function renderNextLevelPageElements() {
     uiState.nextLevelPage.background.doRender();
     uiState.nextLevelPage.button.doRender();
+    uiState.nextLevelPage.text.doRender();
 }
 
 function renderEndGamePageElements() {
@@ -93,6 +100,7 @@ function renderGamePageElements() {
     uiState.scoreText.doRender();
     uiState.topicText.doRender();
     uiState.wordTextTitle.doRender();
+    uiState.currentLevelText.doRender();
 
     uiState.selectedSyllablesButtons.forEach(function (selectedSyllablesButton) {
         selectedSyllablesButton.doRender();
@@ -117,106 +125,7 @@ function removeButton(button) {
     arrayRemove(uiState.buttons, button);
 }
 
-function buildEndGamePage() {
-    uiState = createInitialUiState();
-
-    uiState.endGamePage.background = new Rectangle({
-        pos: {
-            x: 0,
-            y: 0
-        },
-        width: canvas.width,
-        height: canvas.height,
-        bgColor: '#f1f1f1'
-    });
-
-    uiState.endGamePage.yourScoreText = new Text({
-        pos: {
-            x: 325,
-            y: 300
-        },
-        text: 'Sua pontuação: ' + gameState.score
-    });
-
-    uiState.endGamePage.highscoreText = new Text({
-        pos: {
-            x: 320  ,
-            y: 340
-        },
-        text: 'Maior pontuação: ' + getHighscore()
-    });
-
-
-    uiState.endGamePage.button = new Button({
-        pos: {
-            x: 325,
-            y: 400
-        },
-        text: 'Jogar novamente',
-        onClick: function () {
-            gameState.currentLevel = gameState.levels[0];
-
-            uiState.score = 0;
-            uiState.selectedSyllablesButtons = [];
-            uiState.buttons = [];
-            uiState.lastSyllablesChoicesButton = null;
-            uiState.syllablesChoicesButtonsMap = {};
-            uiState.wordsTextsMap = {};
-
-            buildLevel(gameState.currentLevel);
-            gameState.gameEnded = false;
-        }
-    });
-
-    addButton(uiState.endGamePage.button);
-}
-
-function buildGoToNextLevelPage() {
-    uiState = createInitialUiState();
-
-    uiState.nextLevelPage.background = new Rectangle({
-        pos: {
-            x: 0,
-            y: 0
-        },
-        width: canvas.width,
-        height: canvas.height,
-        bgColor: '#f1f1f1'
-    });
-
-    uiState.nextLevelPage.text = new Text({
-        pos: {
-            x: 325,
-            y: 400
-        }
-    });
-
-    uiState.nextLevelPage.button = new Button({
-        pos: {
-            x: 325,
-            y: 400
-        },
-        text: 'Pŕoximo nível >',
-        onClick: function () {
-            var currentLevelIndex = gameState.levels.indexOf(gameState.currentLevel);
-
-            gameState.currentLevel = gameState.levels[currentLevelIndex+1];
-
-            uiState.selectedSyllablesButtons = [];
-            uiState.buttons = [];
-            uiState.lastSyllablesChoicesButton = null;
-            uiState.syllablesChoicesButtonsMap = {};
-            uiState.wordsTextsMap = {};
-
-            buildLevel(gameState.currentLevel);
-        }
-    });
-
-    addButton(uiState.nextLevelPage.button);
-}
-
 function startTimer(time, cbTimeout, cbChanged) {
-
     var unsub;
     var now = new Date();
     var endsAt = addMinutes(now, time);
@@ -244,187 +153,6 @@ function startTimer(time, cbTimeout, cbChanged) {
     }, 100);
 }
 
-function buildLevel(level) {
-    var topic = level.topic;
-
-    var words = arrayPickRandom(topic.words, 10);
-
-    var wordsSyllables = words.map(function (word) {
-        return word.split('-');
-    });
-
-    var syllables = arrayShuffle(arrayFlatten(wordsSyllables));
-
-    gameState.wordsSyllables = wordsSyllables;
-    gameState.syllables = syllables;
-
-    console.log(gameState.wordsSyllables);
-
-    buildSyllablesChoicesButtons();
-    buildInput();
-    buildGui();
-
-    startTimer(
-        level.time,
-        function () {
-            handleLevelEnded();
-            console.log('Timeout');
-        },
-        function (remainingTime) {
-            uiState.remainingTimeText.text = 'Tempo restate: ' + formatTime(remainingTime);
-        }
-    );
-}
-
-function buildGui() {
-
-    uiState.topicText = new Text({
-        pos: {
-            x: 10,
-            y: 10
-        },
-        text: 'Tema: ' + gameState.currentLevel.topic.name
-    });
-
-    uiState.wordTextTitle = new Text({
-        pos: {
-            x: 10,
-            y: 60
-        },
-        text: 'Palavras:'
-    });
-
-    var lastWordText;
-
-    gameState.wordsSyllables.forEach(function (wordsSyllable) {
-        var wordText = new Text({
-            pos: {
-                x: 10,
-                y: lastWordText ? lastWordText.endPos.y : 90
-            },
-            text: wordsSyllable.map(function () {return '□'}).join(' ')
-        });
-
-        uiState.wordsTextsMap[wordsSyllable.join('')] = wordText;
-
-        lastWordText = wordText;
-    });
-
-
-    uiState.remainingTimeText = new Text({
-        pos: {
-            x: 10,
-            y: canvas.height - 40
-        },
-        text: ' '
-    });
-
-    uiState.scoreText = new Text({
-        pos: {
-            x: 250,
-            y: canvas.height - 40
-        },
-        text: 'Pontuação: ' + gameState.score
-    });
-}
-
-function buildInput() {
-
-    var posY = uiState.lastSyllablesChoicesButton.endPos.y + 20;
-
-    uiState.inputBar = new Rectangle({
-        relativeFrom: uiState.rightRectangle,
-        pos: {x: 10, y: posY},
-        width: 500,
-        height: 40,
-        bgColor: '#F1F1F1'
-    });
-
-    uiState.backspaceButton =  new Button({
-        relativeFrom: uiState.inputBar,
-        text: '⌫',
-        pos: {x: 455, y: 5},
-        width: 40,
-        onClick: function () {
-            var lastSyllablesButton = uiState.selectedSyllablesButtons.pop();
-
-            if(!lastSyllablesButton) return;
-
-            var choiceButton = uiState.syllablesChoicesButtonsMap[lastSyllablesButton.text].filter(function (btn) {
-                return btn.disabled === true;
-            })[0];
-
-            choiceButton.disabled = false;
-        }
-    });
-
-    addButton(uiState.backspaceButton);
-}
-
-function buildSyllablesChoicesButtons(){
-
-    var initialPos = uiState.rightRectangle.pos;
-
-    var lastButton = new Button({pos: {
-        x: initialPos.x,
-        y: initialPos.y-20
-    }});
-
-    gameState.syllables.forEach(function (syllable, i) {
-
-        var isLineBreak = (i%10 === 0);
-
-        var posX = ((isLineBreak) ? initialPos.x : lastButton.pos.x+lastButton.width)+10;
-        var posY = (isLineBreak) ? lastButton.endPos.y+10 : lastButton.pos.y;
-
-        var pos = {
-            x: posX,
-            y: posY
-        };
-
-        var button = new SyllableChoiceButton({
-            pos: pos,
-            text: syllable,
-            onClick: function () {
-                if(addSyllableToInput(this.text)) this.disabled = true;
-            }
-        });
-
-        addButton(button);
-        uiState.syllablesChoicesButtonsMap[syllable] = uiState.syllablesChoicesButtonsMap[syllable] || [];
-        uiState.syllablesChoicesButtonsMap[syllable].push(button);
-
-        lastButton = button;
-    });
-
-    uiState.lastSyllablesChoicesButton = lastButton;
-}
-
-function addSyllableToInput(syllable) {
-
-    var first = uiState.selectedSyllablesButtons[0];
-    var last = uiState.selectedSyllablesButtons[uiState.selectedSyllablesButtons.length-1];
-
-    var pos = {
-        x: (last) ? last.pos.x+last.width+5 : uiState.inputBar.pos.x+5,
-        y: uiState.inputBar.pos.y+5
-    };
-
-    var button = new Button({
-        text: syllable,
-        pos: pos
-    });
-
-    first = first ? first : button;
-
-    if(button.endPos.x-first.pos.x > uiState.inputBar.width-55) return false;
-
-    uiState.selectedSyllablesButtons.push(button);
-
-    testWords();
-
-    return true;
-}
 
 function testWords() {
     var selectedSyllables = uiState.selectedSyllablesButtons.map(function (selectedSyllableButton) {
@@ -465,15 +193,10 @@ function handleWordFormed(wordSyllables) {
             });
     });
 
-    var thisScore = Math.floor(gameState.timer.remainingTime.total/1000);
-
-    gameState.score += ((thisScore >= 0) ? thisScore : 0);
+    addScore(gameState.currentLevel.scorePerWord);
     uiState.scoreText.text = 'Pontuação: ' + gameState.score;
 
-    if(gameState.levels.indexOf(gameState.currentLevel) === gameState.levels.length-1){
-        handleGameEnded();
-    }
-    else if(gameState.completedWordsSyllables.length === gameState.wordsSyllables.length){
+    if(gameState.completedWordsSyllables.length === gameState.wordsSyllables.length){
         handleLevelEnded();
     }
 
@@ -481,10 +204,34 @@ function handleWordFormed(wordSyllables) {
 }
 
 function handleLevelEnded(){
+
+    addScore(gameState.timer.remainingTime.seconds);
+
+    if(gameState.levels.indexOf(gameState.currentLevel) === gameState.levels.length-1){
+        handleGameEnded();
+        return;
+    }
+
     (gameState.timer.stop || noop)();
+
+    goToNextLevel();
+}
+
+function goToNextLevel() {
+
+    var nextLevelIndex = (gameState.currentLevel) ? (getCurrentLevelIndex()+1) : 0;
+    gameState.currentLevel = gameState.levels[nextLevelIndex];
+
     gameState.timer.remainingTime.total = 0;
     gameState.completedWordsSyllables = [];
+
+    gameState.currentPage = GO_TO_NEXT_LEVEL_PAGE;
+
     buildGoToNextLevelPage();
+}
+
+function goToStart() {
+    
 }
 
 function handleGameEnded() {
@@ -496,6 +243,7 @@ function handleGameEnded() {
 
     buildEndGamePage();
     gameState.gameEnded = true;
+    gameState.currentPage = END_GAME_PAGE;
 }
 
 function setHighscore(score) {
@@ -504,6 +252,14 @@ function setHighscore(score) {
 
 function getHighscore() {
     return window.localStorage.getItem('highscore');
+}
+
+function getCurrentLevelIndex() {
+    return gameState.levels.indexOf(gameState.currentLevel);
+}
+
+function addScore(score) {
+    gameState.score += score;
 }
 
 function registerButtonsListeners(){
@@ -539,6 +295,10 @@ function registerButtonsListeners(){
     }, false);
 }
 
+function resetUiState() {
+    uiState = createInitialUiState();
+}
+
 function createInitialUiState() {
     return {
         rightRectangle: new Rectangle({pos: {x: 200, y: 0}}),
@@ -560,6 +320,11 @@ function createInitialUiState() {
             button: null,
             text: null
         },
+        startPage: {
+            background: null,
+            button: null,
+            text: null
+        },
         endGamePage: {
             background: null,
             button: null,
@@ -573,11 +338,14 @@ function createInitialGameState() {
     return {
         gameEnded: false,
         score: 0,
-        timer: {},
+        timer: {
+            remainingTime: {}
+        },
         syllables: [],
         wordsSyllables: [],
         completedWordsSyllables: [],
         levels: levels,
-        currentLevel: levels[0]
+        currentLevel: null,
+        currentPage: START_PAGE
     };
 }
