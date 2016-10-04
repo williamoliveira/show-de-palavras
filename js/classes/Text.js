@@ -1,6 +1,8 @@
 function Text(attributes) {
     Rectangle.call(this, attributes);
 
+    attributes.hover = attributes.hover || {};
+
     this.text = attributes.text || 'Text';
     this.width = attributes.width || ((this.text.length*10)+10);
     this.textColor = attributes.textColor || '#000000';
@@ -12,9 +14,8 @@ function Text(attributes) {
     this.wrapMaxWidth = attributes.wrapMaxWidth || 300;
     this.lineHeight = attributes.lineHeight || 20;
 
-    this.hover = attributes.hover || {};
-
-    this.hover.bgColor = this.hover.bgColor || '#e2e2e2';
+    this.hover = attributes.hover;
+    this.hover.bgColor = attributes.hover.bgColor || '#e2e2e2';
 }
 
 Text.prototype = Object.create(Rectangle.prototype);

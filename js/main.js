@@ -46,9 +46,7 @@ main();
 
 function main(){
     registerButtonsListeners();
-
     goToNextLevel();
-
     animloop();
 }
 
@@ -94,6 +92,8 @@ function renderEndGamePageElements() {
 }
 
 function renderGamePageElements() {
+    uiState.background.doRender();
+    uiState.leftRectangle.doRender();
     uiState.remainingTimeText.doRender();
     uiState.inputBar.doRender();
     uiState.backspaceButton.doRender();
@@ -230,9 +230,6 @@ function goToNextLevel() {
     buildGoToNextLevelPage();
 }
 
-function goToStart() {
-    
-}
 
 function handleGameEnded() {
     (gameState.timer.stop || noop)();
@@ -309,6 +306,7 @@ function createInitialUiState() {
         selectedSyllablesButtons: [],
         syllablesChoicesButtonsMap: {},
         wordsTextsMap: {},
+        leftRectangle: null,
         remainingTimeText: null,
         inputBar: null,
         backspaceButton: null,

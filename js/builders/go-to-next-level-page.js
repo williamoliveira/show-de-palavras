@@ -8,7 +8,7 @@ function buildGoToNextLevelPage() {
         },
         width: canvas.width,
         height: canvas.height,
-        bgColor: '#f1f1f1'
+        bgColor: '#2FD5EB'
     });
 
     uiState.nextLevelPage.text = new Text({

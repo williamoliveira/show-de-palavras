@@ -8,7 +8,7 @@ function buildEndGamePage() {
         },
         width: canvas.width,
         height: canvas.height,
-        bgColor: '#f1f1f1'
+        bgColor: '#2FD5EB'
     });
 
     uiState.endGamePage.yourScoreText = new Text({
@@ -43,7 +43,7 @@ function buildEndGamePage() {
         },
         text: 'Jogar novamente',
         onClick: function () {
-            gameState.currentLevel = gameState.levels[0];
+            gameState.currentLevel = null;
 
             uiState.score = 0;
             uiState.selectedSyllablesButtons = [];
@@ -52,7 +52,7 @@ function buildEndGamePage() {
             uiState.syllablesChoicesButtonsMap = {};
             uiState.wordsTextsMap = {};
 
-            buildLevel(gameState.currentLevel);
+            goToNextLevel();
             gameState.gameEnded = false;
         }
     });

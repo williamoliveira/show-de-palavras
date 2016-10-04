@@ -1,4 +1,5 @@
 function Renderable() {
+    this.disabled = false;
 }
 
 Renderable.prototype.render = function () {
@@ -6,5 +7,7 @@ Renderable.prototype.render = function () {
 };
 
 Renderable.prototype.doRender = function () {
+    if(this.disabled) return;
+
     this.render();
 };

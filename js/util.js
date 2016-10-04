@@ -41,13 +41,13 @@ function arrayRemove(array, item) {
     return array.splice(index, 1);
 }
 
-function arraysEqual(a, b) {
-    if (a === b) return true;
-    if (a == null || b == null) return false;
-    if (a.length != b.length) return false;
+function arraysEqual(array1, array2) {
+    if (array1 === array2) return true;
+    if (array1 == null || array2 == null) return false;
+    if (array1.length !== array2.length) return false;
 
-    for (var i = 0; i < a.length; ++i) {
-        if (a[i] !== b[i]) return false;
+    for (var i = 0; i < array1.length; ++i) {
+        if (array1[i] !== array2[i]) return false;
     }
 
     return true;
@@ -58,16 +58,18 @@ function randomBetween(start, end) {
 }
 
 function arrayPickRandom(array, quant) {
-    return !quant ? array[randomBetween(0, array.length)] : arrayShuffle(array).slice(0, quant);
+    return (!quant)
+        ? array[randomBetween(0, array.length)]
+        : arrayShuffle(array).slice(0, quant);
 }
 
 function arrayShuffle(array) {
-    var rand, index = -1;
+    var index = -1;
     var length = array.length;
     var result = Array(length);
 
     while (++index < length) {
-        rand = Math.floor(Math.random() * (index + 1));
+        var rand = Math.floor(Math.random() * (index + 1));
         result[index] = result[rand];
         result[rand] = array[index];
     }
