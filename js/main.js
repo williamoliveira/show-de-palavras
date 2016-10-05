@@ -46,7 +46,7 @@ main();
 
 function main(){
     registerButtonsListeners();
-    goToNextLevel();
+    goToStartPage();
     animloop();
 }
 
@@ -86,6 +86,7 @@ function renderNextLevelPageElements() {
 
 function renderEndGamePageElements() {
     uiState.endGamePage.background.doRender();
+    uiState.endGamePage.endGameText.doRender();
     uiState.endGamePage.yourScoreText.doRender();
     uiState.endGamePage.highscoreText.doRender();
     uiState.endGamePage.button.doRender();
@@ -225,11 +226,17 @@ function goToNextLevel() {
     gameState.timer.remainingTime.total = 0;
     gameState.completedWordsSyllables = [];
 
-    gameState.currentPage = GO_TO_NEXT_LEVEL_PAGE;
-
     buildGoToNextLevelPage();
+
+    gameState.currentPage = GO_TO_NEXT_LEVEL_PAGE;
 }
 
+function goToStartPage() {
+
+    gameState.currentPage = START_PAGE;
+
+    buildStartPage();
+}
 
 function handleGameEnded() {
     (gameState.timer.stop || noop)();
@@ -327,7 +334,8 @@ function createInitialUiState() {
             background: null,
             button: null,
             yourScoreText: null,
-            highscoreText: null
+            highscoreText: null,
+            endGameText: null
         }
     };
 }

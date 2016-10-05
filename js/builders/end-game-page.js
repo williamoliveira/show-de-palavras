@@ -11,30 +11,38 @@ function buildEndGamePage() {
         bgColor: '#2FD5EB'
     });
 
-    uiState.endGamePage.yourScoreText = new Text({
+    uiState.endGamePage.endGameText = new Text({
         pos: {
-            x: 310,
-            y: 300
+            x: canvas.width/2,
+            y: 200
         },
-        text: 'Fim de jogo'
+        fontSize: 30,
+        lineHeight: 30,
+        wrapMaxWidth: 500,
+        textAlign: 'center',
+        wrap: true,
+        text: 'Fim de Jogo'
     });
 
     uiState.endGamePage.yourScoreText = new Text({
         pos: {
-            x: 325,
-            y: 300
+            x: canvas.width/2,
+            y: 280
         },
+        textAlign: 'center',
+        wrap: true,
         text: 'Sua pontuação: ' + gameState.score
     });
 
     uiState.endGamePage.highscoreText = new Text({
         pos: {
-            x: 320  ,
-            y: 340
+            x: canvas.width/2,
+            y: 320
         },
+        textAlign: 'center',
+        wrap: true,
         text: 'Maior pontuação: ' + getHighscore()
     });
-
 
     uiState.endGamePage.button = new Button({
         pos: {
@@ -52,8 +60,9 @@ function buildEndGamePage() {
             uiState.syllablesChoicesButtonsMap = {};
             uiState.wordsTextsMap = {};
 
-            goToNextLevel();
             gameState.gameEnded = false;
+
+            goToStartPage();
         }
     });
 

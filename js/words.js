@@ -21,30 +21,6 @@ var comida = [
     "ra-ba-ne-te"
 ];
 
-var objeto = [
-    "lus-tre",
-    "va-so",
-    "mar-te-lo",
-    "me-sa",
-    "com-pu-ta-dor",
-    "ca-dei-ra",
-    "te-sou-ra",
-    "es-pa-na-dor",
-    "ca-ne-ca",
-    "gar-fo",
-    "chi-ne-lo",
-    "ca-ne-ta",
-    "co-po",
-    "li-vro",
-    "mo-chi-la",
-    "gar-ra-fa",
-    "gar-gan-ti-lha",
-    "pa-ne-la",
-    "ro-do",
-    "ga-ve-ta",
-    "ca-bi-de"
-];
-
 var fruta = [
     "ba-na-na",
     "a-ba-ca-te",
@@ -110,29 +86,6 @@ var cor = [
     "co-ral"
 ];
 
-var profissao = [
-    "pi-lo-to",
-    "den-tis-ta",
-    "pro-fes-sor",
-    "po-li-ci-al",
-    "pe-drei-ro",
-    "en-fer-mei-ro",
-    "cos-tu-rei-ro",
-    "pa-dei-ro",
-    "nu-tri-cio-nis-ta",
-    "fren-tis-ta",
-    "ven-de-dor",
-    "te-le-fo-nis-ta",
-    "ze-la-dor",
-    "en-ge-nhei-ro",
-    "mo-to-ris-ta",
-    "bom-bei-ro",
-    "es-cri-tor",
-    "a-tor",
-    "lo-cu-tor",
-    "ar-qui-te-to"
-];
-
 var paises = [
     "di-na-mar-ca",
     "es-pa-nha",
@@ -156,34 +109,10 @@ var paises = [
     "ar-gen-ti-na"
 ];
 
-var planta = [
-    "ro-sa",
-    "mar-ga-ri-da",
-    "vio-le-ta",
-    "pal-mei-ra",
-    "gra-ma",
-    "ba-bo-sa",
-    "ca-mo-mi-la",
-    "hi-bis-co",
-    "bam-bu",
-    "tre-pa-dei-ra",
-    "ce-dro",
-    "pe-ro-ba",
-    "su-cu-len-ta"
-];
-
 var topics = {
-    plantas: {
-        name: 'Plantas',
-        words: planta
-    },
     paises: {
         name: 'Paises',
         words: paises
-    },
-    profissoes: {
-        name: 'Profissões',
-        words: profissao
     },
     cores: {
         name: 'Cores',
@@ -196,10 +125,6 @@ var topics = {
     frutas: {
         name: 'Frutas',
         words: fruta
-    },
-    objetos: {
-        name: 'Objetos',
-        words: objeto
     },
     comidas: {
         name: 'Comidas',

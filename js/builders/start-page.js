@@ -8,28 +8,31 @@ function buildStartPage() {
         },
         width: canvas.width,
         height: canvas.height,
-        bgColor: '#f1f1f1'
+        bgColor: '#2FD5EB'
     });
 
     uiState.startPage.text = new Text({
         pos: {
             x: canvas.width/2,
-            y: 300
+            y: 250
         },
+        fontSize: 40,
+        lineHeight: 30,
+        wrapMaxWidth: 500,
         textAlign: 'center',
         wrap: true,
-        text: 'Show das palavras'
+        text: 'Show das Palavras'
     });
 
 
     uiState.startPage.button = new Button({
         pos: {
-            x: 335,
+            x: 365,
             y: 400
         },
         text: 'Jogar',
         onClick: function () {
-            buildLevel(gameState.currentLevel);
+            goToNextLevel();
         }
     });
 

@@ -14,7 +14,7 @@ function buildGoToNextLevelPage() {
     uiState.nextLevelPage.text = new Text({
         pos: {
             x: canvas.width/2,
-            y: 300
+            y: 270
         },
         textAlign: 'center',
         wrap: true,

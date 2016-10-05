@@ -58,7 +58,7 @@ function randomBetween(start, end) {
 }
 
 function arrayPickRandom(array, quant) {
-    return (!quant)
+    return (!quant || quant === 1)
         ? array[randomBetween(0, array.length)]
         : arrayShuffle(array).slice(0, quant);
 }
