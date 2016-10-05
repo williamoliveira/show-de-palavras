@@ -6,8 +6,8 @@ function buildGui() {
             y: 10
         },
         width: 180,
-        height: canvas.height-20,
-        bgColor: '#D80451',
+        height: canvas.height-15,
+        bgColor: '#EEDD82',
         borderRadius: {
             upperLeft: 8,
             upperRight: 8,
@@ -18,32 +18,24 @@ function buildGui() {
         borderWidth: 0
     });
 
-    uiState.background = new Rectangle({
-        pos: {
-            x: 0,
-            y: 0
-        },
-        width: canvas.width,
-        height: canvas.height,
-        bgColor: '#2FD5EB'
-    });
-
     uiState.topicText = new Text({
         pos: {
             x: 20,
             y: 20
         },
         text: 'Tema: ' + gameState.currentLevel.topic.name,
-        textColor: '#FFF'
+        textColor: 'blue',
+        fontsize: 12
     });
 
     uiState.wordTextTitle = new Text({
         pos: {
             x: 20,
-            y: 60
+            y: 50
         },
         text: 'Palavras:',
-        textColor: '#FFF'
+        fontSize: 14,
+        textColor: '#EEDD82'
     });
 
     var lastWordText;
@@ -52,10 +44,9 @@ function buildGui() {
         var wordText = new Text({
             pos: {
                 x: 20,
-                y: lastWordText ? lastWordText.endPos.y : 90
+                y: lastWordText ? lastWordText.endPos.y : 80
             },
-            text: wordsSyllable.map(function () {return '-'}).join(' '),
-            textColor: '#FFF'
+            text: wordsSyllable.map(function () {return '—'}).join(' ')
         });
 
         uiState.wordsTextsMap[wordsSyllable.join('')] = wordText;
@@ -69,6 +60,7 @@ function buildGui() {
             x: 220,
             y: canvas.height - 40
         },
+        textColor: '#EE0000',
         text: 'Tempo restante: 00:00'
     });
 
@@ -85,6 +77,7 @@ function buildGui() {
             x: 650,
             y: canvas.height - 40
         },
+        textColor: '#00008B',
         text: 'Nível ' + (getCurrentLevelIndex()+1) + ' de ' + gameState.levels.length
     });
 }

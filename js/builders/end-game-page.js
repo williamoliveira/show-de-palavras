@@ -1,55 +1,46 @@
 function buildEndGamePage() {
     resetUiState();
 
-    uiState.endGamePage.background = new Rectangle({
-        pos: {
-            x: 0,
-            y: 0
-        },
-        width: canvas.width,
-        height: canvas.height,
-        bgColor: '#2FD5EB'
-    });
-
     uiState.endGamePage.endGameText = new Text({
         pos: {
-            x: canvas.width/2,
+            x: 300,
             y: 200
         },
         fontSize: 30,
         lineHeight: 30,
         wrapMaxWidth: 500,
-        textAlign: 'center',
         wrap: true,
-        text: 'Fim de Jogo'
+        text: 'Fim de Jogo!',
+		fontFamily: 'Maiandra GD',
+		textColor: 'yellow'
     });
 
     uiState.endGamePage.yourScoreText = new Text({
         pos: {
-            x: canvas.width/2,
-            y: 280
+            x: 325,
+            y: 300
         },
-        textAlign: 'center',
-        wrap: true,
-        text: 'Sua pontuação: ' + gameState.score
+        textColor: 'white',
+		text: 'Sua pontuação: ' + gameState.score
     });
 
     uiState.endGamePage.highscoreText = new Text({
         pos: {
-            x: canvas.width/2,
-            y: 320
+            x: 300  ,
+            y: 340
         },
-        textAlign: 'center',
-        wrap: true,
-        text: 'Maior pontuação: ' + getHighscore()
+        textColor: 'white',
+		text: 'Maior pontuação: ' + getHighscore()
     });
 
     uiState.endGamePage.button = new Button({
         pos: {
-            x: 325,
+            x: 300,
             y: 400
         },
-        text: 'Jogar novamente',
+        width: 220,
+        height: 35,
+		text: ' Jogar novamente',
         onClick: function () {
             gameState.currentLevel = null;
 

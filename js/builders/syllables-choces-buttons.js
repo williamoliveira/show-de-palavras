@@ -4,15 +4,15 @@ function buildSyllablesChoicesButtons(){
 
     var lastButton = new Button({pos: {
         x: initialPos.x,
-        y: initialPos.y-20
+        y: initialPos.y+20
     }});
 
     gameState.syllables.forEach(function (syllable, i) {
 
-        var isLineBreak = (i%10 === 0);
+        var isLineBreak = (i%9 === 0);
 
         var posX = ((isLineBreak) ? initialPos.x : lastButton.pos.x+lastButton.width)+10;
-        var posY = (isLineBreak) ? lastButton.endPos.y+10 : lastButton.pos.y;
+        var posY = (isLineBreak) ? lastButton.endPos.y+20 : lastButton.pos.y;
 
         var pos = {
             x: posX,

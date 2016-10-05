@@ -1,36 +1,70 @@
 <!DOCTYPE html>
-<html lang="en-us">
 
-<head>
-<meta charset="utf-8">
-<title>Show de Palavras</title>
-<style type="text/css">
-    #canvas{
-        border-radius: 5px;
-    }
-</style>
-</head>
-
-<body>
+<html>
 	
-<canvas id="canvas" width="800" height="600"></canvas>
+	<head>
+		<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+		<title>Jogos Online</title>
+		<link rel="stylesheet"href="css/indexCSS.css"/>
+	</head>
+	
+	<body>
+		
+		<div id="cabeçalho">
+			<div id="cabeçalho-titulo">
+				Jogos Online
+			</div>
+			<div id="cabeçalho-figura">
+				<img src="img/cabecalho-figura2.png" alt="Ranking" height="40" width="146"></br>
+				Confira o ranking da semana!				
+			</div>
+		</div>
+	
+		<div id="corpo1">
+			<div id="corpo1-esquerda">
+			<img src="img/figura-show.png" alt="Jogo" height="146" width="145"></br>
+			</div>
+			<div id="corpo1-direita">
+			<h2>Show das Palavras</h2>
+			Corra contra o tempo e junte as sílabas para</br> 
+			descobrir o maior número possível de palavras</br>  
+			neste jogo de lógica e raciocínio</br>	
+			</br>
+			<a href="show-das-palavras.html"><input id="botao-jogar-principal" type="button" value="JOGAR"/></a>			
+			</div>
+		</div>
+		
+		<div id="corpo2">
+			<div id="corpo2-1">
+			<div id="quadrinho1" class="quadrinho">
+				<p id="jogoA" class="titulo">Soccer Stars</p>
+				<img src="img/jogo2.png" alt="Jogo" height="91" width="99"></br>
+				<p>Escolha a sua seleção favorita e vença essa competição.</p>
+				<input id="botao-jogar" type="button" value="JOGAR"/>
+			</div>
+			</div>
+			<div id="corpo2-2">
+			<div id="quadrinho2" class="quadrinho"">
+				<p id="jogoB" class="titulo">Zombies Battle</p>
+				<img src="img/jogo3.png" alt="Jogo" height="91" width="99"></br>
+				<p>Atire nos zumbis para garantir a sua sobrevivência.</p>
+				<input id="botao-jogar" type="button" value="JOGAR"/>
+				</div>
+			</div>
+			<div id="corpo2-3">
+			<div id="quadrinho3" class="quadrinho">
+				<p id="jogoC" class="titulo">Jump Out!</p>
+				<img src="img/jogo4.png" alt="Jogo" height="91" width="99"></br>
+				<p>Patine e salte o mais rápido e o melhor que puder.</p>
+				<input id="botao-jogar" type="button" value="JOGAR"/>
+				</div>
+			</div>
+		</div>
+		
+		<div id="rodape">
+		Todos os direitos reservados.
+		</div>
+		
+	</body>
 
-<script type="text/javascript" src="js/classes/Renderable.js"></script>
-<script type="text/javascript" src="js/classes/Rectangle.js"></script>
-<script type="text/javascript" src="js/classes/Text.js"></script>
-<script type="text/javascript" src="js/classes/Button.js"></script>
-<script type="text/javascript" src="js/classes/SyllableChoiceButton.js"></script>
-
-<script type="text/javascript" src="js/builders/end-game-page.js"></script>
-<script type="text/javascript" src="js/builders/go-to-next-level-page.js"></script>
-<script type="text/javascript" src="js/builders/start-page.js"></script>
-<script type="text/javascript" src="js/builders/input.js"></script>
-<script type="text/javascript" src="js/builders/level.js"></script>
-<script type="text/javascript" src="js/builders/gui.js"></script>
-<script type="text/javascript" src="js/builders/syllables-choces-buttons.js"></script>
-
-<script type="text/javascript" src="js/util.js"></script>
-<script type="text/javascript" src="js/words.js"></script>
-<script type="text/javascript" src="js/main.js"></script>
-</body>
 </html>

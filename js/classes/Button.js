@@ -5,7 +5,7 @@ function Button(attributes) {
 
     this.text = attributes.text || 'Text';
     this.textColor = attributes.textColor || '#000000';
-    this.fontFamily = attributes.fontFamily || 'Helvetica';
+    this.fontFamily = attributes.fontFamily || 'Lucida Handwriting';
     this.fontSize = attributes.fontSize || 14;
     this.onClick = (typeof attributes.onClick === 'function')
         ? attributes.onClick.bind(this)
@@ -14,25 +14,24 @@ function Button(attributes) {
 
     context.font =  this.fontSize + 'pt ' +  this.fontFamily;
     context.fillStyle = (this.hovering) ? this.hover.textColor || this.textColor : this.textColor;
-    this.textMargin = attributes.textMargin || 8;
+    this.textMargin = attributes.textMargin || 10;
     this.width = attributes.width || (context.measureText(this.text).width+(this.textMargin*2));
 
     this.hover = attributes.hover;
     this.hover.bgColor = attributes.hover.bgColor || '#e2e2e2';
     this.hover.textColor = attributes.hover.textColor || this.textColor;
 
-    // Game theme
-    this.borderRadius = {
+   this.borderRadius = {
         upperLeft: 8,
         upperRight: 8,
         lowerLeft: 8,
         lowerRight: 8
     };
-    this.bgColor = attributes.bgColor || '#F31F73';
-    this.hover.bgColor = '#C4195D';
+    this.bgColor = attributes.bgColor || '#E20001';
+    this.hover.bgColor = '#B30101';
     this.textColor = attributes.textColor || '#fff';
-    this.hover.textColor = this.textColor;
-    this.borderStyle = attributes.borderStyle || '#C4195D';
+	this.hover.textColor = this.textColor;
+    this.borderStyle = attributes.borderStyle || '#6F0000';
     this.borderWidth = attributes.borderWidth || 3;
 }
 

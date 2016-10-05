@@ -1,22 +1,14 @@
 function buildStartPage() {
     resetUiState();
 
-    uiState.startPage.background = new Rectangle({
-        pos: {
-            x: 0,
-            y: 0
-        },
-        width: canvas.width,
-        height: canvas.height,
-        bgColor: '#2FD5EB'
-    });
-
     uiState.startPage.text = new Text({
         pos: {
             x: canvas.width/2,
             y: 250
         },
-        fontSize: 40,
+		fontFamily: 'Maiandra GD',
+		textColor: 'yellow',
+        fontSize: 45,
         lineHeight: 30,
         wrapMaxWidth: 500,
         textAlign: 'center',
@@ -27,11 +19,13 @@ function buildStartPage() {
 
     uiState.startPage.button = new Button({
         pos: {
-            x: 365,
+            x: 350,
             y: 400
         },
-        text: 'Jogar',
-        onClick: function () {
+		width: 95,
+        height: 36,
+        text: ' Jogar',
+		onClick: function () {
             goToNextLevel();
         }
     });

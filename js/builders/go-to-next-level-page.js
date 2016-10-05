@@ -8,19 +8,22 @@ function buildGoToNextLevelPage() {
         },
         width: canvas.width,
         height: canvas.height,
-        bgColor: '#2FD5EB'
+        bgColor: 'blue'
     });
 
     uiState.nextLevelPage.text = new Text({
         pos: {
             x: canvas.width/2,
-            y: 270
+            y: 280
         },
-        textAlign: 'center',
+		fontFamily: 'Maiandra GD',
+		textColor: '#00008B',
+		fontSize: 17,
+		textAlign: 'center',
         wrap: true,
         text: 'Bem vindo ao nível ' + (getCurrentLevelIndex()+1) + ', \n'
-        + 'o tema é "' + gameState.currentLevel.topic.name
-        + '" e você terá ' + gameState.currentLevel.wordsNumber + ' palavras para acertar \n'
+        + 'o tema é "' + gameState.currentLevel.topic.name + '" e você terá \n' 
+		+ gameState.currentLevel.wordsNumber + ' palavras para acertar \n'
         + 'em até ' + gameState.currentLevel.time + ' minutos'
     });
 
@@ -28,10 +31,12 @@ function buildGoToNextLevelPage() {
     uiState.nextLevelPage.button = new Button({
         pos: {
             x: 350,
-            y: 400
+            y: 430
         },
-        text: 'Começar >',
-        onClick: function () {
+		width: 115,
+        height: 35,
+        text: 'Começar',
+		onClick: function () {
             buildLevel(gameState.currentLevel);
         }
     });

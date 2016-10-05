@@ -68,24 +68,54 @@ function frameLoop(){
 }
 
 function clearCanvas() {
-    context.fillStyle = '#fcfcfc';
-    context.fillRect(0, 0, canvas.width, canvas.height);
+	backgroundStartPageRender();
+    //context.fillStyle = 'red';
+    //context.fillRect(0, 0, canvas.width, canvas.height);
+}
+
+function backgroundStartPageRender(){
+	var img = new Image();
+	img.src = "img/fundo.png";
+	context.drawImage(img, 0, 0, canvas.width, canvas.height);
+}
+
+function backgroundFirstPage(){
+	var img = new Image();
+	img.src = "img/cortina.png";
+	context.drawImage(img, 0, 0, canvas.width, canvas.height);
+	context.font = 'Maiandra GD';
+}
+
+function backgroundRender(){
+	var img = new Image();
+	img.src = "img/tapete-vermelho.png";
+	context.drawImage(img, 0, 0, canvas.width, canvas.height);
+}
+
+function backgroundLastPage(){
+	var img = new Image();
+	img.src = "img/cortina-fechada.png";
+	context.drawImage(img, 0, 0, canvas.width, canvas.height);
+	context.font = 'Maiandra GD';
 }
 
 function renderStartPageElements() {
-    uiState.startPage.background.doRender();
+    backgroundFirstPage();
     uiState.startPage.button.doRender();
     uiState.startPage.text.doRender();
 }
 
+
 function renderNextLevelPageElements() {
-    uiState.nextLevelPage.background.doRender();
+    backgroundRender();
+	//uiState.nextLevelPage.background.doRender();
     uiState.nextLevelPage.button.doRender();
     uiState.nextLevelPage.text.doRender();
 }
 
 function renderEndGamePageElements() {
-    uiState.endGamePage.background.doRender();
+    backgroundLastPage();
+	//uiState.endGamePage.background.doRender();
     uiState.endGamePage.endGameText.doRender();
     uiState.endGamePage.yourScoreText.doRender();
     uiState.endGamePage.highscoreText.doRender();
@@ -93,7 +123,6 @@ function renderEndGamePageElements() {
 }
 
 function renderGamePageElements() {
-    uiState.background.doRender();
     uiState.leftRectangle.doRender();
     uiState.remainingTimeText.doRender();
     uiState.inputBar.doRender();
@@ -232,7 +261,6 @@ function goToNextLevel() {
 }
 
 function goToStartPage() {
-
     gameState.currentPage = START_PAGE;
 
     buildStartPage();
@@ -313,7 +341,6 @@ function createInitialUiState() {
         selectedSyllablesButtons: [],
         syllablesChoicesButtonsMap: {},
         wordsTextsMap: {},
-        leftRectangle: null,
         remainingTimeText: null,
         inputBar: null,
         backspaceButton: null,
@@ -334,8 +361,7 @@ function createInitialUiState() {
             background: null,
             button: null,
             yourScoreText: null,
-            highscoreText: null,
-            endGameText: null
+            highscoreText: null
         }
     };
 }

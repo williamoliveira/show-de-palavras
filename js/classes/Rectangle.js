@@ -2,7 +2,7 @@ function Rectangle(attributes) {
     Renderable.call(this, attributes);
 
     this.relativeFrom = attributes.relativeFrom || {pos: {x: 0, y: 0}};
-    this.height = attributes.height || 30;
+    this.height = attributes.height || 33;
     this.width = attributes.width || 40;
     this.bgColor = attributes.bgColor || '#CCCCCC';
     this.pos = attributes.pos || {x:0, y:0};
