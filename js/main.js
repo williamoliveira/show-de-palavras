@@ -1,6 +1,19 @@
 var canvas = document.getElementById('canvas');
 var context = canvas.getContext('2d');
 
+
+var mainBgImage = new Image();
+mainBgImage.src = "img/fundo.png";
+
+var startPageBgImage = new Image();
+startPageBgImage.src = "img/cortina.png";
+
+var goToNextPageBgImage = new Image();
+goToNextPageBgImage.src = "img/tapete-vermelho.png";
+
+var endGameBgImage = new Image();
+endGameBgImage.src = "img/cortina-fechada.png";
+
 var START_PAGE = 'START_PAGE';
 var GO_TO_NEXT_LEVEL_PAGE = 'GO_TO_NEXT_LEVEL_PAGE';
 var GAME_PAGE = 'GAME_PAGE';
@@ -74,28 +87,20 @@ function clearCanvas() {
 }
 
 function backgroundStartPageRender(){
-	var img = new Image();
-	img.src = "img/fundo.png";
-	context.drawImage(img, 0, 0, canvas.width, canvas.height);
+	context.drawImage(mainBgImage, 0, 0, canvas.width, canvas.height);
 }
 
 function backgroundFirstPage(){
-	var img = new Image();
-	img.src = "img/cortina.png";
-	context.drawImage(img, 0, 0, canvas.width, canvas.height);
+	context.drawImage(startPageBgImage, 0, 0, canvas.width, canvas.height);
 	context.font = 'Maiandra GD';
 }
 
 function backgroundRender(){
-	var img = new Image();
-	img.src = "img/tapete-vermelho.png";
-	context.drawImage(img, 0, 0, canvas.width, canvas.height);
+	context.drawImage(goToNextPageBgImage, 0, 0, canvas.width, canvas.height);
 }
 
 function backgroundLastPage(){
-	var img = new Image();
-	img.src = "img/cortina-fechada.png";
-	context.drawImage(img, 0, 0, canvas.width, canvas.height);
+	context.drawImage(endGameBgImage, 0, 0, canvas.width, canvas.height);
 	context.font = 'Maiandra GD';
 }
 
